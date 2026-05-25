@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop — DRIP.</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-logo">DRIP<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="shop.html" class="active">Shop</a></li>
+      <li><a href="shop.html?category=men">Men</a></li>
+      <li><a href="shop.html?category=women">Women</a></li>
+      <li><a href="shop.html?category=accessories">Accessories</a></li>
+    </ul>
+    <div class="nav-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search styles…" id="nav-search-input">
+    </div>
+    <div class="nav-actions">
+      <a href="auth.html" class="nav-icon-btn" id="auth-btn" title="Account">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <button class="nav-icon-btn" id="cart-toggle" title="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:48px;padding-bottom:80px">
+  <div style="margin-bottom:32px">
+    <p class="section-subtitle">Discover</p>
+    <h1 class="section-title" id="page-title">All Products</h1>
+  </div>
+
+  <div class="shop-layout">
+    <!-- FILTERS -->
+    <aside class="filters-sidebar">
+      <div class="filter-section">
+        <div class="filter-title">Category</div>
+        <div class="filter-options">
+          <label class="filter-option"><input type="radio" name="category" value="all" checked> <span>All</span></label>
+          <label class="filter-option"><input type="radio" name="category" value="men"> <span>Men</span></label>
+          <label class="filter-option"><input type="radio" name="category" value="women"> <span>Women</span></label>
+          <label class="filter-option"><input type="radio" name="category" value="streetwear"> <span>Streetwear</span></label>
+          <label class="filter-option"><input type="radio" name="category" value="accessories"> <span>Accessories</span></label>
+        </div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">Price Range</div>
+        <div style="padding:0 4px">
+          <input type="range" id="price-range" min="0" max="10000" value="10000" style="width:100%;accent-color:var(--gold);background:transparent;border:none;padding:0">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-soft);margin-top:8px">
+            <span>₹0</span>
+            <span id="price-display">Up to ₹10,000</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">Size</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="XS" style="display:none"><span class="size-chip">XS</span></label>
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="S" style="display:none"><span class="size-chip">S</span></label>
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="M" style="display:none"><span class="size-chip">M</span></label>
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="L" style="display:none"><span class="size-chip">L</span></label>
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="XL" style="display:none"><span class="size-chip">XL</span></label>
+          <label style="cursor:pointer"><input type="checkbox" name="size" value="XXL" style="display:none"><span class="size-chip">XXL</span></label>
+        </div>
+      </div>
+      <button id="apply-filters" class="btn-primary" style="width:100%;justify-content:center">Apply Filters</button>
+      <button id="clear-filters" class="btn-outline" style="width:100%;justify-content:center;margin-top:10px">Clear All</button>
+    </aside>
+
+    <!-- PRODUCTS -->
+    <div>
+      <div class="sort-bar">
+        <span class="results-count" id="results-count">Loading…</span>
+        <select id="sort-select">
+          <option value="newest">Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+      </div>
+      <div class="products-grid" id="products-grid">
+        <!-- Skeleton -->
+        ${[...Array(8)].map(() => `<div class="product-card"><div class="skeleton" style="aspect-ratio:3/4"></div><div style="padding:16px"><div class="skeleton" style="height:12px;margin-bottom:8px;width:40%"></div><div class="skeleton" style="height:16px;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:30%;margin-bottom:14px"></div><div class="skeleton" style="height:36px"></div></div></div>`).join('')}
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cart-overlay"></div>
+<aside class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="cart-close" id="cart-close">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items-container"></div>
+  <div class="cart-footer" id="cart-footer"></div>
+</aside>
+
+<footer class="footer" style="margin-top:0">
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0">
+      <span>© 2025 DRIP. Clothing</span>
+      <div class="payment-icons">
+        <span class="payment-icon">Razorpay</span>
+        <span class="payment-icon">UPI</span>
+        <span class="payment-icon">Cards</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+.size-chip {
+  display:inline-block;
+  padding:6px 12px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-size:12px;
+  color:var(--text-soft);
+  transition:all var(--transition);
+}
+input[type=checkbox]:checked + .size-chip {
+  border-color:var(--gold);
+  color:var(--gold);
+  background:rgba(201,169,110,0.08);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+  import { getProducts, productCardHTML, formatPrice } from '../js/products.js';
+  import { addToCart, getCart, removeFromCart, updateQuantity, getCartTotal } from '../js/cart.js';
+
+  const params = new URLSearchParams(window.location.search);
+  let currentPage = 1;
+  let currentFilters = {
+    category: params.get('category') || 'all',
+    search: params.get('search') || '',
+    sort: 'newest',
+    maxPrice: 10000
+  };
+
+  // Set category radio
+  const catInput = document.querySelector(`input[name=category][value="${currentFilters.category}"]`);
+  if (catInput) catInput.checked = true;
+  if (currentFilters.category !== 'all') {
+    document.getElementById('page-title').textContent = currentFilters.category.charAt(0).toUpperCase() + currentFilters.category.slice(1);
+  }
+
+  // Demo products fallback
+  const demoAll = [
+    { id: 1, name: 'Obsidian Oversized Tee', category: 'Streetwear', price: 1299, sale_price: null, image_url: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80', is_new: true, in_stock: true },
+    { id: 2, name: 'Linen Relaxed Blazer', category: 'Men', price: 4999, sale_price: 3499, image_url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80', in_stock: true },
+    { id: 3, name: 'Minimal Wrap Dress', category: 'Women', price: 2799, sale_price: null, image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80', is_new: true, in_stock: true },
+    { id: 4, name: 'Cargo Utility Pants', category: 'Streetwear', price: 2299, sale_price: null, image_url: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80', in_stock: true },
+    { id: 5, name: 'Classic Oxford Shirt', category: 'Men', price: 1899, sale_price: null, image_url: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=600&q=80', in_stock: true },
+    { id: 6, name: 'Floral Midi Skirt', category: 'Women', price: 1699, sale_price: 1299, image_url: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&q=80', in_stock: true },
+    { id: 7, name: 'Leather Crossbody Bag', category: 'Accessories', price: 3499, sale_price: null, image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80', in_stock: true },
+    { id: 8, name: 'Hoodie Zip-Up', category: 'Streetwear', price: 2199, sale_price: null, image_url: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80', is_new: true, in_stock: true },
+  ];
+
+  async function loadProducts() {
+    const grid = document.getElementById('products-grid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-soft)">Loading…</div>';
+    try {
+      const { products, total } = await getProducts({ ...currentFilters, page: currentPage });
+      renderProducts(products || demoAll, total || demoAll.length);
+    } catch {
+      let filtered = demoAll;
+      if (currentFilters.category !== 'all') filtered = filtered.filter(p => p.category.toLowerCase() === currentFilters.category.toLowerCase());
+      renderProducts(filtered, filtered.length);
+    }
+  }
+
+  function renderProducts(products, total) {
+    const grid = document.getElementById('products-grid');
+    document.getElementById('results-count').textContent = `${total} product${total !== 1 ? 's' : ''}`;
+    if (!products.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-soft)">
+        <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+        <p>No products found. Try different filters.</p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = products.map(productCardHTML).join('');
+    grid.querySelectorAll('.add-cart-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.product-card');
+        const id = card.dataset.id;
+        const name = card.querySelector('.card-name').textContent;
+        const priceText = card.querySelector('.price').textContent.replace(/[^0-9]/g, '');
+        const img = card.querySelector('img').src;
+        addToCart({ id, name, price: parseInt(priceText), image_url: img }, 'M');
+        renderCart();
+      });
+    });
+  }
+
+  // Filters
+  document.getElementById('price-range').addEventListener('input', e => {
+    document.getElementById('price-display').textContent = `Up to ₹${parseInt(e.target.value).toLocaleString('en-IN')}`;
+    currentFilters.maxPrice = parseInt(e.target.value);
+  });
+  document.getElementById('sort-select').addEventListener('change', e => {
+    currentFilters.sort = e.target.value;
+    loadProducts();
+  });
+  document.querySelectorAll('input[name=category]').forEach(r => {
+    r.addEventListener('change', e => { currentFilters.category = e.target.value; });
+  });
+  document.getElementById('apply-filters').addEventListener('click', () => {
+    currentPage = 1;
+    loadProducts();
+  });
+  document.getElementById('clear-filters').addEventListener('click', () => {
+    currentFilters = { category: 'all', search: '', sort: 'newest', maxPrice: 10000 };
+    document.querySelector('input[name=category][value="all"]').checked = true;
+    document.getElementById('price-range').value = 10000;
+    document.getElementById('price-display').textContent = 'Up to ₹10,000';
+    document.querySelectorAll('input[name=size]').forEach(c => c.checked = false);
+    loadProducts();
+  });
+
+  // Cart
+  const cartToggle = document.getElementById('cart-toggle');
+  const cartOverlay = document.getElementById('cart-overlay');
+  const cartSidebar = document.getElementById('cart-sidebar');
+  const cartClose = document.getElementById('cart-close');
+  cartToggle.addEventListener('click', () => { cartOverlay.classList.add('open'); cartSidebar.classList.add('open'); renderCart(); });
+  cartClose.addEventListener('click', () => { cartOverlay.classList.remove('open'); cartSidebar.classList.remove('open'); });
+  cartOverlay.addEventListener('click', () => { cartOverlay.classList.remove('open'); cartSidebar.classList.remove('open'); });
+
+  function renderCart() {
+    const cart = getCart();
+    const container = document.getElementById('cart-items-container');
+    const footer = document.getElementById('cart-footer');
+    if (!cart.length) {
+      container.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛍️</div><p>Your cart is empty</p></div>`;
+      footer.innerHTML = '';
+      return;
+    }
+    container.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-img"><img src="${item.image_url || ''}" alt="${item.name}"></div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-meta">Size: ${item.size}</div>
+          <div class="cart-item-controls">
+            <div class="qty-control">
+              <button class="qty-btn" data-id="${item.id}" data-size="${item.size}" data-action="minus">−</button>
+              <span class="qty-num">${item.quantity}</span>
+              <button class="qty-btn" data-id="${item.id}" data-size="${item.size}" data-action="plus">+</button>
+            </div>
+            <span class="cart-item-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+          </div>
+          <div class="remove-item" data-id="${item.id}" data-size="${item.size}">Remove</div>
+        </div>
+      </div>`).join('');
+    footer.innerHTML = `
+      <div class="cart-total-row"><span class="cart-total-label">Subtotal</span><span class="cart-total-amount">₹${getCartTotal().toLocaleString('en-IN')}</span></div>
+      <a href="checkout.html" class="btn-primary" style="width:100%;justify-content:center">Proceed to Checkout →</a>`;
+    container.querySelectorAll('.qty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const { id, size, action } = btn.dataset;
+        const item = getCart().find(i => i.id == id && i.size == size);
+        if (item) updateQuantity(id, size, action === 'plus' ? item.quantity + 1 : item.quantity - 1);
+        renderCart();
+      });
+    });
+    container.querySelectorAll('.remove-item').forEach(el => {
+      el.addEventListener('click', () => { removeFromCart(el.dataset.id, el.dataset.size); renderCart(); });
+    });
+  }
+
+  loadProducts();
+</script>
+</body>
+</html>

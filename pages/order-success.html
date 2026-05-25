@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed — DRIP.</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .success-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 24px; }
+    .success-card { max-width: 560px; width: 100%; text-align: center; }
+    .checkmark {
+      width: 80px; height: 80px;
+      background: rgba(46,204,113,0.15);
+      border: 2px solid var(--success);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      font-size: 2rem;
+      animation: pop 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes pop { from { transform:scale(0.5); opacity:0 } to { transform:scale(1); opacity:1 } }
+    .success-title { font-family: var(--ff-serif); font-size: 2.5rem; color: var(--white); margin-bottom: 12px; }
+    .success-sub { color: var(--text-soft); font-size: 15px; line-height: 1.8; margin-bottom: 32px; }
+    .order-details { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 32px; text-align: left; }
+    .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--text-soft); }
+    .detail-value { color: var(--white); font-weight: 500; }
+    .confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-logo">DRIP<span>.</span></a>
+  </div>
+</nav>
+
+<canvas class="confetti" id="confetti-canvas"></canvas>
+
+<div class="success-wrapper">
+  <div class="success-card">
+    <div class="checkmark">✓</div>
+    <h1 class="success-title">Order Confirmed!</h1>
+    <p class="success-sub">
+      Thank you for shopping with DRIP. Your order has been placed successfully.
+      You'll receive a confirmation email shortly.
+    </p>
+
+    <div class="order-details">
+      <div class="detail-row">
+        <span class="detail-label">Order ID</span>
+        <span class="detail-value" id="order-id">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Payment ID</span>
+        <span class="detail-value" id="payment-id">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Payment Method</span>
+        <span class="detail-value" id="payment-method">Razorpay</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Estimated Delivery</span>
+        <span class="detail-value" id="delivery-date">—</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status</span>
+        <span class="detail-value" style="color:var(--success)">✓ Confirmed</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="shop.html" class="btn-primary">Continue Shopping</a>
+      <a href="account.html" class="btn-outline">My Orders</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order');
+  const paymentId = params.get('payment_id');
+  const method = params.get('method');
+
+  document.getElementById('order-id').textContent = orderId ? `#${orderId.slice(0,8).toUpperCase()}` : `#${Math.random().toString(36).slice(2,10).toUpperCase()}`;
+  document.getElementById('payment-id').textContent = paymentId || (method === 'cod' ? 'N/A (COD)' : '—');
+  document.getElementById('payment-method').textContent = method === 'cod' ? 'Cash on Delivery' : 'Razorpay';
+
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 5);
+  document.getElementById('delivery-date').textContent = deliveryDate.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+  // Confetti
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    r: Math.random() * 8 + 4,
+    d: Math.random() * 3 + 1,
+    color: ['#c9a96e','#e8d5a3','#2ecc71','#fff','#f39c12'][Math.floor(Math.random()*5)],
+    tilt: Math.random() * 10 - 10,
+    ts: Math.random() * 0.01
+  }));
+
+  let frame = 0;
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.ellipse(p.x, p.y, p.r, p.r * 0.5, p.tilt, 0, Math.PI * 2);
+      ctx.fill();
+      p.y += p.d;
+      p.x += Math.sin(frame * p.ts) * 2;
+      p.tilt += p.ts;
+      if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+    });
+    frame++;
+    if (frame < 300) requestAnimationFrame(drawConfetti);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  drawConfetti();
+</script>
+</body>
+</html>

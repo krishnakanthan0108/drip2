@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — DRIP.</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .checkout-layout { display: grid; grid-template-columns: 1fr 420px; gap: 48px; padding: 48px 0 80px; align-items: start; }
+    .checkout-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; }
+    .checkout-section-title { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--white); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .step-num { width: 28px; height: 28px; background: var(--gold); color: var(--black); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .order-summary { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; position: sticky; top: 88px; }
+    .summary-title { font-family: var(--ff-serif); font-size: 1.2rem; margin-bottom: 24px; }
+    .summary-item { display: flex; gap: 14px; margin-bottom: 18px; }
+    .summary-item-img { width: 64px; height: 80px; border-radius: var(--radius); overflow: hidden; flex-shrink: 0; position: relative; }
+    .summary-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .qty-bubble { position: absolute; top: -6px; right: -6px; background: var(--gold); color: var(--black); border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .summary-item-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .summary-item-meta { font-size: 12px; color: var(--text-soft); }
+    .summary-item-price { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--gold); white-space: nowrap; }
+    .summary-line { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px; }
+    .summary-line.total { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .summary-line span:first-child { color: var(--text-soft); }
+    .summary-line.total span:first-child { color: var(--white); }
+    .pay-btn { width: 100%; padding: 16px; font-size: 14px; justify-content: center; margin-top: 20px; }
+    .method-option { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all var(--transition); margin-bottom: 10px; }
+    .method-option.selected { border-color: var(--gold); background: rgba(201,169,110,0.06); }
+    .method-option input[type=radio] { accent-color: var(--gold); }
+    .method-label { font-size: 13px; flex: 1; }
+    .method-icons { display: flex; gap: 6px; }
+    .method-icon { background: var(--border); border-radius: 3px; padding: 2px 8px; font-size: 10px; color: var(--text-soft); }
+    .promo-row { display: flex; gap: 10px; }
+    .promo-row input { flex: 1; }
+    @media (max-width: 900px) { .checkout-layout { grid-template-columns: 1fr; } .order-summary { position: static; } }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-logo">DRIP<span>.</span></a>
+    <div style="flex:1"></div>
+    <a href="shop.html" style="font-size:13px;color:var(--text-soft)">← Continue Shopping</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div style="padding-top:32px;margin-bottom:8px">
+    <p class="section-subtitle">Almost There</p>
+    <h1 class="section-title">Checkout</h1>
+  </div>
+
+  <div class="checkout-layout">
+    <!-- LEFT: Forms -->
+    <div>
+      <!-- Contact -->
+      <div class="checkout-section">
+        <div class="checkout-section-title">
+          <div class="step-num">1</div>
+          Contact Information
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" id="first-name" placeholder="John">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" id="last-name" placeholder="Doe">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="checkout-email" placeholder="john@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" id="checkout-phone" placeholder="+91 98765 43210">
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping -->
+      <div class="checkout-section">
+        <div class="checkout-section-title">
+          <div class="step-num">2</div>
+          Shipping Address
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address Line 1</label>
+          <input type="text" id="addr1" placeholder="Street address, apartment, etc.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address Line 2 (Optional)</label>
+          <input type="text" id="addr2" placeholder="Landmark, etc.">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" id="city" placeholder="Mumbai">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <select id="state">
+              <option value="">Select State</option>
+              <option>Maharashtra</option><option>Tamil Nadu</option><option>Karnataka</option>
+              <option>Delhi</option><option>Gujarat</option><option>Rajasthan</option>
+              <option>Uttar Pradesh</option><option>West Bengal</option><option>Telangana</option>
+              <option>Andhra Pradesh</option><option>Kerala</option><option>Madhya Pradesh</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">PIN Code</label>
+            <input type="text" id="pincode" placeholder="400001" maxlength="6">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <input type="text" value="India" readonly style="opacity:0.6">
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="checkout-section">
+        <div class="checkout-section-title">
+          <div class="step-num">3</div>
+          Payment Method
+        </div>
+        <div>
+          <div class="method-option selected" data-method="razorpay">
+            <input type="radio" name="payment" value="razorpay" checked>
+            <div class="method-label">
+              <strong>Razorpay</strong><br>
+              <span style="font-size:11px;color:var(--text-soft)">UPI, Cards, NetBanking, Wallets</span>
+            </div>
+            <div class="method-icons">
+              <span class="method-icon">UPI</span>
+              <span class="method-icon">VISA</span>
+              <span class="method-icon">MC</span>
+            </div>
+          </div>
+          <div class="method-option" data-method="cod">
+            <input type="radio" name="payment" value="cod">
+            <div class="method-label">
+              <strong>Cash on Delivery</strong><br>
+              <span style="font-size:11px;color:var(--text-soft)">Pay when your order arrives</span>
+            </div>
+            <div class="method-icons"><span class="method-icon">COD</span></div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:14px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.2);border-radius:var(--radius)">
+          <p style="font-size:12px;color:var(--text-soft)">🔒 Your payment is secured by Razorpay with 256-bit SSL encryption. We never store your card details.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Summary -->
+    <div class="order-summary">
+      <div class="summary-title">Order Summary</div>
+      <div id="summary-items"></div>
+
+      <div style="margin:20px 0;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="promo-row">
+          <input type="text" id="promo-code" placeholder="Promo code">
+          <button class="btn-gold-outline" style="padding:12px 16px;white-space:nowrap;font-size:12px" id="apply-promo">Apply</button>
+        </div>
+        <div id="promo-msg" style="font-size:12px;margin-top:8px;display:none"></div>
+      </div>
+
+      <div id="summary-totals"></div>
+
+      <button class="btn-primary pay-btn" id="place-order-btn">
+        Place Order →
+      </button>
+      <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">
+        By placing your order, you agree to our <a href="#" style="color:var(--gold)">Terms</a> and <a href="#" style="color:var(--gold)">Privacy Policy</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="module">
+  import { getCart, getCartTotal, clearCart } from '../js/cart.js';
+  import { getCurrentUser } from '../js/auth.js';
+  import { formatPrice } from '../js/products.js';
+  import { RAZORPAY_KEY_ID, supabase } from '../js/config.js';
+
+  const cart = getCart();
+  if (!cart.length) { window.location.href = 'shop.html'; }
+
+  // Render items
+  document.getElementById('summary-items').innerHTML = cart.map(item => `
+    <div class="summary-item">
+      <div class="summary-item-img">
+        <img src="${item.image_url||''}" alt="${item.name}">
+        <div class="qty-bubble">${item.quantity}</div>
+      </div>
+      <div>
+        <div class="summary-item-name">${item.name}</div>
+        <div class="summary-item-meta">Size: ${item.size}</div>
+      </div>
+      <div class="summary-item-price">${formatPrice(item.price * item.quantity)}</div>
+    </div>`).join('');
+
+  const subtotal = getCartTotal();
+  const shipping = subtotal >= 999 ? 0 : 99;
+  let discount = 0;
+
+  function renderTotals() {
+    const total = subtotal - discount + shipping;
+    document.getElementById('summary-totals').innerHTML = `
+      <div class="summary-line"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>
+      ${discount ? `<div class="summary-line" style="color:var(--success)"><span>Discount</span><span>−${formatPrice(discount)}</span></div>` : ''}
+      <div class="summary-line"><span>Shipping</span><span>${shipping === 0 ? '<span style="color:var(--success)">FREE</span>' : formatPrice(shipping)}</span></div>
+      <div class="summary-line total"><span>Total</span><span style="color:var(--gold)">${formatPrice(total)}</span></div>`;
+    return total;
+  }
+  renderTotals();
+
+  // Promo
+  const PROMOS = { 'DRIP10': 0.10, 'WELCOME20': 0.20, 'SAVE15': 0.15 };
+  document.getElementById('apply-promo').addEventListener('click', () => {
+    const code = document.getElementById('promo-code').value.trim().toUpperCase();
+    const msg = document.getElementById('promo-msg');
+    if (PROMOS[code]) {
+      discount = Math.round(subtotal * PROMOS[code]);
+      msg.textContent = `✓ Code applied! You save ${formatPrice(discount)}`;
+      msg.style.color = 'var(--success)';
+    } else {
+      discount = 0;
+      msg.textContent = '✗ Invalid promo code.';
+      msg.style.color = 'var(--red)';
+    }
+    msg.style.display = 'block';
+    renderTotals();
+  });
+
+  // Payment method toggle
+  document.querySelectorAll('.method-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input[type=radio]').checked = true;
+    });
+  });
+
+  // Place Order
+  document.getElementById('place-order-btn').addEventListener('click', async () => {
+    // Validate fields
+    const fields = { 'first-name':'First name', 'last-name':'Last name', 'checkout-email':'Email', 'checkout-phone':'Phone', 'addr1':'Address', 'city':'City', 'state':'State', 'pincode':'PIN Code' };
+    for (const [id, label] of Object.entries(fields)) {
+      if (!document.getElementById(id).value.trim()) { alert(`Please enter your ${label}.`); return; }
+    }
+
+    const method = document.querySelector('input[name=payment]:checked').value;
+    const total = renderTotals();
+
+    const shippingInfo = {
+      name: `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`,
+      email: document.getElementById('checkout-email').value,
+      phone: document.getElementById('checkout-phone').value,
+      address: `${document.getElementById('addr1').value}, ${document.getElementById('addr2').value}`.replace(/, $/, ''),
+      city: document.getElementById('city').value,
+      state: document.getElementById('state').value,
+      pincode: document.getElementById('pincode').value,
+    };
+
+    if (method === 'cod') {
+      // COD order
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          await supabase.from('orders').insert({ user_id: user.id, items: cart, total, shipping_info: shippingInfo, status: 'pending_cod' });
+        }
+        clearCart();
+        window.location.href = `order-success.html?method=cod`;
+      } catch {
+        clearCart();
+        window.location.href = `order-success.html?method=cod`;
+      }
+      return;
+    }
+
+    // Razorpay
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Opening payment…';
+
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: total * 100,
+      currency: 'INR',
+      name: 'DRIP. Clothing',
+      description: `Order (${cart.length} item${cart.length > 1 ? 's' : ''})`,
+      image: '',
+      prefill: { name: shippingInfo.name, email: shippingInfo.email, contact: shippingInfo.phone },
+      notes: { address: shippingInfo.address },
+      theme: { color: '#c9a96e' },
+      handler: async function(response) {
+        try {
+          const user = await getCurrentUser();
+          const orderData = {
+            items: cart,
+            total,
+            shipping_info: shippingInfo,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            status: 'paid'
+          };
+          if (user) orderData.user_id = user.id;
+          const { data } = await supabase.from('orders').insert(orderData).select().single();
+          clearCart();
+          window.location.href = `order-success.html?order=${data?.id || ''}&payment_id=${response.razorpay_payment_id}`;
+        } catch {
+          clearCart();
+          window.location.href = `order-success.html?payment_id=${response.razorpay_payment_id}`;
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          btn.disabled = false;
+          btn.textContent = 'Place Order →';
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', r => { alert(`Payment failed: ${r.error.description}`); btn.disabled = false; btn.textContent = 'Place Order →'; });
+    rzp.open();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account — DRIP.</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .account-layout { display: grid; grid-template-columns: 260px 1fr; gap: 40px; padding: 48px 0 80px; align-items: start; }
+    .account-sidebar { position: sticky; top: 88px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .account-profile-head { padding: 28px 24px; background: linear-gradient(135deg, rgba(201,169,110,0.12), transparent); border-bottom: 1px solid var(--border); text-align: center; }
+    .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: var(--ff-serif); font-size: 1.8rem; color: var(--black); margin: 0 auto 12px; font-weight: 700; }
+    .profile-name { font-family: var(--ff-serif); font-size: 1.1rem; color: var(--white); margin-bottom: 4px; }
+    .profile-email { font-size: 12px; color: var(--text-soft); }
+    .account-nav { padding: 12px 0; }
+    .account-nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 24px; font-size: 13px; color: var(--text-soft); cursor: pointer; transition: all var(--transition); border-left: 3px solid transparent; }
+    .account-nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .account-nav-item.active { color: var(--gold); background: rgba(201,169,110,0.06); border-left-color: var(--gold); }
+    .account-nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .account-panel { display: none; }
+    .account-panel.active { display: block; }
+    .panel-title { font-family: var(--ff-serif); font-size: 1.6rem; color: var(--white); margin-bottom: 8px; }
+    .panel-subtitle { font-size: 13px; color: var(--text-soft); margin-bottom: 32px; }
+
+    /* Orders */
+    .order-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; transition: border-color var(--transition); }
+    .order-card:hover { border-color: var(--gold); }
+    .order-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .order-id { font-size: 13px; color: var(--text-soft); }
+    .order-id span { color: var(--white); font-weight: 600; }
+    .order-status { padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .status-paid { background: rgba(46,204,113,0.15); color: var(--success); }
+    .status-pending_cod { background: rgba(243,156,18,0.15); color: #f39c18; }
+    .status-shipped { background: rgba(52,152,219,0.15); color: #3498db; }
+    .status-delivered { background: rgba(46,204,113,0.15); color: var(--success); }
+    .order-items-preview { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .order-item-thumb { width: 56px; height: 70px; border-radius: var(--radius); overflow: hidden; }
+    .order-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .order-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+    .order-total-label { font-size: 12px; color: var(--text-soft); }
+    .order-total-val { font-family: var(--ff-serif); font-size: 1.2rem; color: var(--gold); }
+    .order-date { font-size: 12px; color: var(--text-soft); }
+    .empty-state { text-align: center; padding: 60px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-title { font-family: var(--ff-serif); font-size: 1.4rem; color: var(--white); margin-bottom: 8px; }
+    .empty-sub { font-size: 13px; color: var(--text-soft); margin-bottom: 24px; }
+
+    /* Profile form */
+    .profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 20px; }
+    .profile-card-title { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+    .save-btn { background: var(--gold); color: var(--black); padding: 12px 28px; border-radius: var(--radius); font-size: 13px; font-weight: 600; letter-spacing: 0.06em; transition: background var(--transition); }
+    .save-btn:hover { background: var(--gold-light); }
+    .danger-btn { border: 1px solid var(--red); color: var(--red); padding: 12px 28px; border-radius: var(--radius); font-size: 13px; font-weight: 600; letter-spacing: 0.06em; transition: all var(--transition); }
+    .danger-btn:hover { background: var(--red); color: #fff; }
+
+    /* Wishlist */
+    .wishlist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    @media (max-width: 900px) { .account-layout { grid-template-columns: 1fr; } .account-sidebar { position: static; } .wishlist-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .wishlist-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-logo">DRIP<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="shop.html">Shop</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" id="cart-toggle">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="account-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="account-sidebar">
+      <div class="account-profile-head">
+        <div class="avatar" id="avatar-initials">?</div>
+        <div class="profile-name" id="sidebar-name">Loading…</div>
+        <div class="profile-email" id="sidebar-email"></div>
+      </div>
+      <nav class="account-nav">
+        <div class="account-nav-item active" data-panel="orders">
+          <span class="nav-icon">📦</span> My Orders
+        </div>
+        <div class="account-nav-item" data-panel="wishlist">
+          <span class="nav-icon">♡</span> Wishlist
+        </div>
+        <div class="account-nav-item" data-panel="profile">
+          <span class="nav-icon">👤</span> Profile
+        </div>
+        <div class="account-nav-item" data-panel="addresses">
+          <span class="nav-icon">📍</span> Addresses
+        </div>
+        <div class="account-nav-item" id="logout-btn" style="margin-top:8px;border-top:1px solid var(--border);padding-top:16px">
+          <span class="nav-icon">🚪</span> Sign Out
+        </div>
+      </nav>
+    </aside>
+
+    <!-- PANELS -->
+    <div>
+
+      <!-- ORDERS PANEL -->
+      <div class="account-panel active" id="panel-orders">
+        <div class="panel-title">My Orders</div>
+        <div class="panel-subtitle">Track and manage your purchases</div>
+        <div id="orders-list">
+          <div style="text-align:center;padding:40px;color:var(--text-soft)">Loading orders…</div>
+        </div>
+      </div>
+
+      <!-- WISHLIST PANEL -->
+      <div class="account-panel" id="panel-wishlist">
+        <div class="panel-title">Wishlist</div>
+        <div class="panel-subtitle">Items you've saved for later</div>
+        <div class="wishlist-grid" id="wishlist-grid">
+          <div style="text-align:center;padding:40px;color:var(--text-soft);grid-column:1/-1">Loading wishlist…</div>
+        </div>
+      </div>
+
+      <!-- PROFILE PANEL -->
+      <div class="account-panel" id="panel-profile">
+        <div class="panel-title">My Profile</div>
+        <div class="panel-subtitle">Manage your personal details</div>
+
+        <div class="profile-card">
+          <div class="profile-card-title">Personal Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="profile-name" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" id="profile-phone" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="profile-email" placeholder="you@example.com" readonly style="opacity:0.6">
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button class="save-btn" id="save-profile-btn">Save Changes</button>
+          </div>
+          <div id="profile-msg" style="margin-top:12px;font-size:13px;display:none"></div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-title">Change Password</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" id="new-password" placeholder="Min. 8 characters">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" id="confirm-password" placeholder="Repeat password">
+            </div>
+          </div>
+          <button class="save-btn" id="change-pwd-btn">Update Password</button>
+          <div id="pwd-msg" style="margin-top:12px;font-size:13px;display:none"></div>
+        </div>
+
+        <div class="profile-card" style="border-color:rgba(192,57,43,0.3)">
+          <div class="profile-card-title" style="color:var(--red)">Danger Zone</div>
+          <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Once you delete your account, there is no going back. Please be certain.</p>
+          <button class="danger-btn">Delete Account</button>
+        </div>
+      </div>
+
+      <!-- ADDRESSES PANEL -->
+      <div class="account-panel" id="panel-addresses">
+        <div class="panel-title">Saved Addresses</div>
+        <div class="panel-subtitle">Manage your delivery addresses</div>
+        <div class="profile-card">
+          <div class="profile-card-title">Add New Address</div>
+          <div class="form-group">
+            <label class="form-label">Address Label</label>
+            <input type="text" id="addr-label" placeholder="Home, Office, etc.">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Address</label>
+            <textarea id="addr-full" rows="3" placeholder="Street, area, landmark…" style="resize:vertical"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" id="addr-city" placeholder="Mumbai">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PIN Code</label>
+              <input type="text" id="addr-pin" placeholder="400001">
+            </div>
+          </div>
+          <button class="save-btn" id="save-addr-btn">Save Address</button>
+        </div>
+        <div id="saved-addresses"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cart-overlay"></div>
+<aside class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header"><h2>Your Cart</h2><button class="cart-close" id="cart-close">✕</button></div>
+  <div class="cart-items" id="cart-items-container"></div>
+  <div class="cart-footer" id="cart-footer"></div>
+</aside>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+  import { getCurrentUser, signOut } from '../js/auth.js';
+  import { supabase } from '../js/config.js';
+  import { getCart, removeFromCart, updateQuantity, getCartTotal } from '../js/cart.js';
+  import { formatPrice } from '../js/products.js';
+
+  // Auth guard
+  const user = await getCurrentUser();
+  if (!user) { window.location.href = 'auth.html?redirect=/pages/account.html'; }
+
+  // Fill profile info
+  const fullName = user.user_metadata?.full_name || 'User';
+  const initials = fullName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('avatar-initials').textContent = initials;
+  document.getElementById('sidebar-name').textContent = fullName;
+  document.getElementById('sidebar-email').textContent = user.email;
+  document.getElementById('profile-name').value = fullName;
+  document.getElementById('profile-email').value = user.email;
+
+  // Tab switching
+  document.querySelectorAll('.account-nav-item[data-panel]').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.account-nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.account-panel').forEach(p => p.classList.remove('active'));
+      item.classList.add('active');
+      document.getElementById(`panel-${item.dataset.panel}`).classList.add('active');
+      if (item.dataset.panel === 'wishlist') loadWishlist();
+    });
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await signOut();
+  });
+
+  // ── ORDERS ──────────────────────────────────────────────────
+  async function loadOrders() {
+    const container = document.getElementById('orders-list');
+    try {
+      const { data: orders, error } = await supabase
+        .from('orders').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (error || !orders?.length) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No orders yet</div><div class="empty-sub">When you place your first order, it'll show up here.</div><a href="shop.html" class="btn-primary" style="display:inline-flex">Start Shopping</a></div>`;
+        return;
+      }
+      container.innerHTML = orders.map(order => {
+        const items = order.items || [];
+        const date = new Date(order.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+        const statusClass = `status-${order.status}`;
+        const statusLabel = { paid:'Paid', pending_cod:'Cash on Delivery', shipped:'Shipped', delivered:'Delivered', pending:'Pending', cancelled:'Cancelled' }[order.status] || order.status;
+        return `
+          <div class="order-card">
+            <div class="order-head">
+              <div>
+                <div class="order-id">Order <span>#${order.id.slice(0,8).toUpperCase()}</span></div>
+                <div class="order-date">${date} · ${items.length} item${items.length !== 1 ? 's' : ''}</div>
+              </div>
+              <span class="order-status ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="order-items-preview">
+              ${items.slice(0,4).map(item => `<div class="order-item-thumb"><img src="${item.image_url||''}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/56x70'"></div>`).join('')}
+              ${items.length > 4 ? `<div class="order-item-thumb" style="background:var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-soft)">+${items.length-4}</div>` : ''}
+            </div>
+            <div class="order-foot">
+              <div>
+                <div class="order-total-label">Total Amount</div>
+                <div class="order-total-val">${formatPrice(order.total)}</div>
+              </div>
+              ${order.razorpay_payment_id ? `<div style="font-size:11px;color:var(--text-soft)">Payment ID: ${order.razorpay_payment_id}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    } catch {
+      // Demo orders if DB not set up yet
+      container.innerHTML = `
+        <div class="order-card">
+          <div class="order-head">
+            <div><div class="order-id">Order <span>#DEMO0001</span></div><div class="order-date">23 May 2025 · 2 items</div></div>
+            <span class="order-status status-delivered">Delivered</span>
+          </div>
+          <div class="order-items-preview">
+            <div class="order-item-thumb"><img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=100&q=80" alt="Tee"></div>
+            <div class="order-item-thumb"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=100&q=80" alt="Blazer"></div>
+          </div>
+          <div class="order-foot"><div><div class="order-total-label">Total Amount</div><div class="order-total-val">₹4,798</div></div></div>
+        </div>
+        <div class="order-card">
+          <div class="order-head">
+            <div><div class="order-id">Order <span>#DEMO0002</span></div><div class="order-date">10 May 2025 · 1 item</div></div>
+            <span class="order-status status-paid">Paid</span>
+          </div>
+          <div class="order-items-preview">
+            <div class="order-item-thumb"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100&q=80" alt="Dress"></div>
+          </div>
+          <div class="order-foot"><div><div class="order-total-label">Total Amount</div><div class="order-total-val">₹2,799</div></div></div>
+        </div>`;
+    }
+  }
+  loadOrders();
+
+  // ── WISHLIST ─────────────────────────────────────────────────
+  async function loadWishlist() {
+    const grid = document.getElementById('wishlist-grid');
+    try {
+      const { data, error } = await supabase.from('wishlist').select('*, products(*)').eq('user_id', user.id);
+      if (error || !data?.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">♡</div><div class="empty-title">Wishlist is empty</div><div class="empty-sub">Save items you love while you browse.</div><a href="shop.html" class="btn-primary" style="display:inline-flex">Explore Shop</a></div>`;
+        return;
+      }
+      grid.innerHTML = data.map(({ products: p }) => `
+        <article class="product-card" data-id="${p.id}">
+          <a href="product.html?id=${p.id}" class="card-img-wrap">
+            <img src="${p.image_url}" alt="${p.name}" loading="lazy">
+          </a>
+          <div class="card-info">
+            <p class="card-category">${p.category}</p>
+            <h3 class="card-name"><a href="product.html?id=${p.id}">${p.name}</a></h3>
+            <div class="card-price"><span class="price">${formatPrice(p.sale_price || p.price)}</span></div>
+            <button class="add-cart-btn">Add to Cart</button>
+          </div>
+        </article>`).join('');
+    } catch {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">♡</div><div class="empty-title">Wishlist is empty</div><div class="empty-sub">Save items you love while browsing the shop.</div><a href="shop.html" class="btn-primary" style="display:inline-flex">Explore Shop</a></div>`;
+    }
+  }
+
+  // ── PROFILE SAVE ─────────────────────────────────────────────
+  document.getElementById('save-profile-btn').addEventListener('click', async () => {
+    const name = document.getElementById('profile-name').value.trim();
+    const msg = document.getElementById('profile-msg');
+    try {
+      await supabase.auth.updateUser({ data: { full_name: name } });
+      await supabase.from('profiles').upsert({ id: user.id, full_name: name, email: user.email });
+      msg.textContent = '✓ Profile updated successfully!';
+      msg.style.color = 'var(--success)';
+      msg.style.display = 'block';
+      document.getElementById('sidebar-name').textContent = name;
+      document.getElementById('avatar-initials').textContent = name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    } catch {
+      msg.textContent = '✗ Update failed. Please try again.';
+      msg.style.color = 'var(--red)';
+      msg.style.display = 'block';
+    }
+    setTimeout(() => msg.style.display = 'none', 3000);
+  });
+
+  // ── PASSWORD CHANGE ──────────────────────────────────────────
+  document.getElementById('change-pwd-btn').addEventListener('click', async () => {
+    const pw = document.getElementById('new-password').value;
+    const conf = document.getElementById('confirm-password').value;
+    const msg = document.getElementById('pwd-msg');
+    if (pw !== conf) { msg.textContent = '✗ Passwords do not match.'; msg.style.color='var(--red)'; msg.style.display='block'; return; }
+    if (pw.length < 8) { msg.textContent = '✗ Minimum 8 characters.'; msg.style.color='var(--red)'; msg.style.display='block'; return; }
+    try {
+      await supabase.auth.updateUser({ password: pw });
+      msg.textContent = '✓ Password updated!'; msg.style.color='var(--success)'; msg.style.display='block';
+      document.getElementById('new-password').value = '';
+      document.getElementById('confirm-password').value = '';
+    } catch {
+      msg.textContent = '✗ Update failed.'; msg.style.color='var(--red)'; msg.style.display='block';
+    }
+    setTimeout(() => msg.style.display='none', 3000);
+  });
+
+  // ── ADDRESSES ────────────────────────────────────────────────
+  let addresses = JSON.parse(localStorage.getItem(`drip_addresses_${user.id}`) || '[]');
+  function renderAddresses() {
+    const container = document.getElementById('saved-addresses');
+    if (!addresses.length) { container.innerHTML=''; return; }
+    container.innerHTML = addresses.map((a, i) => `
+      <div class="profile-card" style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+        <div>
+          <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">${a.label}</div>
+          <div style="font-size:14px;color:var(--text);line-height:1.7">${a.full}<br>${a.city} — ${a.pin}</div>
+        </div>
+        <button onclick="deleteAddress(${i})" style="color:var(--red);font-size:12px;white-space:nowrap">Remove</button>
+      </div>`).join('');
+  }
+  window.deleteAddress = (i) => { addresses.splice(i,1); localStorage.setItem(`drip_addresses_${user.id}`, JSON.stringify(addresses)); renderAddresses(); };
+  document.getElementById('save-addr-btn').addEventListener('click', () => {
+    const label = document.getElementById('addr-label').value.trim();
+    const full = document.getElementById('addr-full').value.trim();
+    const city = document.getElementById('addr-city').value.trim();
+    const pin = document.getElementById('addr-pin').value.trim();
+    if (!label || !full || !city || !pin) { alert('Please fill all address fields.'); return; }
+    addresses.push({ label, full, city, pin });
+    localStorage.setItem(`drip_addresses_${user.id}`, JSON.stringify(addresses));
+    document.getElementById('addr-label').value=''; document.getElementById('addr-full').value='';
+    document.getElementById('addr-city').value=''; document.getElementById('addr-pin').value='';
+    renderAddresses();
+  });
+  renderAddresses();
+
+  // ── CART SIDEBAR ─────────────────────────────────────────────
+  document.getElementById('cart-toggle').addEventListener('click', () => { document.getElementById('cart-overlay').classList.add('open'); document.getElementById('cart-sidebar').classList.add('open'); renderCart(); });
+  document.getElementById('cart-close').addEventListener('click', () => { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-sidebar').classList.remove('open'); });
+  document.getElementById('cart-overlay').addEventListener('click', () => { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-sidebar').classList.remove('open'); });
+  function renderCart() {
+    const cart = getCart();
+    const c = document.getElementById('cart-items-container');
+    const f = document.getElementById('cart-footer');
+    if (!cart.length) { c.innerHTML=`<div class="empty-cart"><div class="empty-cart-icon">🛍️</div><p>Your cart is empty</p></div>`; f.innerHTML=''; return; }
+    c.innerHTML = cart.map(item=>`<div class="cart-item"><div class="cart-item-img"><img src="${item.image_url}" alt="${item.name}"></div><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-meta">Size: ${item.size}</div><div class="cart-item-controls"><div class="qty-control"><button class="qty-btn" data-id="${item.id}" data-size="${item.size}" data-action="minus">−</button><span class="qty-num">${item.quantity}</span><button class="qty-btn" data-id="${item.id}" data-size="${item.size}" data-action="plus">+</button></div><span class="cart-item-price">₹${(item.price*item.quantity).toLocaleString('en-IN')}</span></div><div class="remove-item" data-id="${item.id}" data-size="${item.size}">Remove</div></div></div>`).join('');
+    f.innerHTML=`<div class="cart-total-row"><span class="cart-total-label">Subtotal</span><span class="cart-total-amount">₹${getCartTotal().toLocaleString('en-IN')}</span></div><a href="checkout.html" class="btn-primary" style="width:100%;justify-content:center">Checkout →</a>`;
+    c.querySelectorAll('.qty-btn').forEach(btn=>btn.addEventListener('click',()=>{const{id,size,action}=btn.dataset;const item=getCart().find(i=>i.id==id&&i.size==size);if(item)updateQuantity(id,size,action==='plus'?item.quantity+1:item.quantity-1);renderCart();}));
+    c.querySelectorAll('.remove-item').forEach(el=>el.addEventListener('click',()=>{removeFromCart(el.dataset.id,el.dataset.size);renderCart();}));
+  }
+</script>
+</body>
+</html>
